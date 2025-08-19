@@ -12,7 +12,8 @@ import { AppRoutes } from "./routes";
 import { NAVIGATION } from "./navigation";
 import "./App.css";
 
-import type { User, AppSession } from "./types";
+import { justRideClient } from "./client/justride";
+import type { AppSession } from "./session";
 
 function Dashboard({ session }: { session: AppSession }) {
   const location = useLocation();
@@ -50,36 +51,10 @@ function App() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    console.log("Attempting login with:", email);
-    const authString = btoa(`${email}:${password}`);
-    console.log("Auth string:", authString);
-
-    const response = await fetch(
-      "/api/justride/broker/web-api/v1/RTDDENVER/login",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${authString}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      },
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      const user: User = {
-        id: data.account,
-        name: data.username,
-        email: data.emailAddress,
-      };
-      const newSession: AppSession = { user };
-      setSession(newSession);
-      return { type: "CredentialsSignin" as const };
-    } else {
-      const error = await response.json();
-      throw new Error(error.message || "Login failed");
-    }
+    const user = await justRideClient.login(email, password);
+    const newSession: AppSession = { user };
+    setSession(newSession);
+    return { type: "CredentialsSignin" as const };
   };
 
   const signOut = () => {

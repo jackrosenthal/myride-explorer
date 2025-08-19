@@ -9,52 +9,8 @@ import {
   Chip,
 } from "@mui/material";
 import { DirectionsBus, LocationOn } from "@mui/icons-material";
-import type { AppSession, TapHistoryRecord } from "../types";
-
-async function getJWTToken(service: string): Promise<string> {
-  const response = await fetch(
-    "/api/justride/broker/web-api/v1/RTDDENVER/tokens",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ service }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to get JWT token");
-  }
-
-  const data = await response.json();
-  return data.jwtToken;
-}
-
-async function fetchTapHistory(
-  accountId: string,
-  jwtToken: string,
-  size = 10,
-): Promise<TapHistoryRecord[]> {
-  const endTime = Date.now();
-  const startTime = 1; // minimum startTime as per docs
-
-  const response = await fetch(
-    `/api/justride/edge/data/v2/RTDDENVER/account/${accountId}/history?size=${size}&startTime=${startTime}&endTime=${endTime}`,
-    {
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch tap history");
-  }
-
-  const data = await response.json();
-  return data.hits || [];
-}
+import { justRideClient, type TapHistoryRecord } from "../client/justride";
+import type { AppSession } from "../session";
 
 export function TapHistory({ session }: { session: AppSession }) {
   const [history, setHistory] = useState<TapHistoryRecord[]>([]);
@@ -63,25 +19,15 @@ export function TapHistory({ session }: { session: AppSession }) {
 
   useEffect(() => {
     async function loadHistory() {
-      console.log("TapHistory useEffect - session:", session);
-      console.log("TapHistory useEffect - user:", session?.user);
-      console.log("TapHistory useEffect - user.id:", session?.user?.id);
-
       if (!session?.user?.id) {
-        console.log("No user ID found, not loading history");
         setLoading(false);
         return;
       }
 
-      console.log("Starting to load history for user:", session.user.id);
       setLoading(true);
       setError(null);
 
-      console.log("Getting JWT token...");
-      const jwtToken = await getJWTToken("data");
-      console.log("Got JWT token, fetching history...");
-      const historyData = await fetchTapHistory(session.user.id, jwtToken);
-      console.log("History data received:", historyData);
+      const historyData = await justRideClient.getTapHistory(session.user.id);
       setHistory(historyData);
       setLoading(false);
     }

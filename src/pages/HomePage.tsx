@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useSession } from "@toolpad/core/useSession";
-import type { AppSession } from "../types";
+import type { AppSession } from "../session";
 
 export function HomePage() {
   const session = useSession() as AppSession;
