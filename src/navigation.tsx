@@ -1,4 +1,7 @@
-import { History as HistoryIcon, Home as HomeIcon } from "@mui/icons-material";
+import {
+  CalendarMonth as CalendarIcon,
+  Home as HomeIcon,
+} from "@mui/icons-material";
 import type { Navigation } from "@toolpad/core";
 
 export const NAVIGATION: Navigation = [
@@ -9,7 +12,7 @@ export const NAVIGATION: Navigation = [
   },
   {
     segment: "history",
-    title: "Tap History",
-    icon: <HistoryIcon />,
+    title: "Calendar View",
+    icon: <CalendarIcon />,
   },
 ];

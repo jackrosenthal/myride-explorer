@@ -8,6 +8,7 @@ export function AppRoutes({ session }: { session: AppSession }) {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/history" element={<TapHistory session={session} />} />
+      <Route path="/history/:date" element={<TapHistory session={session} />} />
     </Routes>
   );
 }

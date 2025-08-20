@@ -130,6 +130,43 @@ class JustRideClient {
     const jwtToken = await this.getJWTToken("data");
     return this.fetchTapHistory(accountId, jwtToken, size);
   }
+
+  async getTapHistoryForDateRange(
+    accountId: string,
+    startDate: Date,
+    endDate: Date,
+    size = 1000,
+  ): Promise<TapHistoryRecord[]> {
+    const jwtToken = await this.getJWTToken("data");
+    return this.fetchTapHistory(
+      accountId,
+      jwtToken,
+      size,
+      startDate.getTime(),
+      endDate.getTime(),
+    );
+  }
+
+  async getTapHistoryForMonth(
+    accountId: string,
+    year: number,
+    month: number,
+  ): Promise<TapHistoryRecord[]> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+    return this.getTapHistoryForDateRange(accountId, startDate, endDate);
+  }
+
+  async getTapHistoryForDay(
+    accountId: string,
+    year: number,
+    month: number,
+    day: number,
+  ): Promise<TapHistoryRecord[]> {
+    const startDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const endDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+    return this.getTapHistoryForDateRange(accountId, startDate, endDate);
+  }
 }
 
 export const justRideClient = new JustRideClient();
